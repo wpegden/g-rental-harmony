@@ -39,6 +39,7 @@ def GeomDoor := { tau : Finset (Fin n → ℝ) // is_door T y b tau }
 def geom_incidence (r : GeomRoom T y b) (d : GeomDoor T y b) : Prop :=
   d.val ⊆ r.val
 
+section TrapDoorGraphConstruction
 variable [Fintype (GeomRoom T y b)] [Fintype (GeomDoor T y b)]
 variable [DecidableRel (geom_incidence T y b)]
 
@@ -76,3 +77,26 @@ lemma exists_fully_labeled_simplex_from_geom
   have h_spans := h_target r hr
   use r.val
   exact ⟨r.property.1, r.property.2.1, h_spans⟩
+
+end TrapDoorGraphConstruction
+
+/-- The properties that a geometric triangulation must satisfy generically for the trap-door path following to work. -/
+structure GeometricTrapDoorBounds : Prop where
+  fintype_room : Nonempty (Fintype (GeomRoom T y b))
+  fintype_door : Nonempty (Fintype (GeomDoor T y b))
+  dec_inc : Nonempty (DecidableRel (geom_incidence T y b))
+  room_le_two : ∀ [Fintype (GeomDoor T y b)] [DecidableRel (geom_incidence T y b)], ∀ r : GeomRoom T y b, ((@univ (GeomDoor T y b) _).filter (fun d => geom_incidence T y b r d)).card ≤ 2
+  door_le_two : ∀ [Fintype (GeomRoom T y b)] [DecidableRel (geom_incidence T y b)], ∀ d : GeomDoor T y b, ((@univ (GeomRoom T y b) _).filter (fun r => geom_incidence T y b r d)).card ≤ 2
+  door_pos : ∀ [Fintype (GeomRoom T y b)] [DecidableRel (geom_incidence T y b)], ∀ d : GeomDoor T y b, ((@univ (GeomRoom T y b) _).filter (fun r => geom_incidence T y b r d)).card > 0
+  one_door : ∀ [Fintype (GeomRoom T y b)] [Fintype (GeomDoor T y b)] [DecidableRel (geom_incidence T y b)], ((@univ (GeomDoor T y b) _).filter (fun d => ((@univ (GeomRoom T y b) _).filter (fun r => geom_incidence T y b r d)).card = 1)).card = 1
+  target : ∀ [Fintype (GeomDoor T y b)] [DecidableRel (geom_incidence T y b)], ∀ r : GeomRoom T y b, ((@univ (GeomDoor T y b) _).filter (fun d => geom_incidence T y b r d)).card = 1 → b n ∈ convexHull ℝ (r.val.image y : Set (Fin n → ℝ))
+
+/-- Helper API for PaperTheorems: given the bounds structure, extract the conclusion. -/
+lemma apply_geometric_trap_door
+    (h_bounds : GeometricTrapDoorBounds T y b) :
+    ∃ τ ∈ T.complex.faces, τ.card = n ∧
+      b n ∈ convexHull ℝ (τ.image y : Set (Fin n → ℝ)) := by
+  have inst1 : Fintype (GeomRoom T y b) := h_bounds.fintype_room.some
+  have inst2 : Fintype (GeomDoor T y b) := h_bounds.fintype_door.some
+  have inst3 : DecidableRel (geom_incidence T y b) := h_bounds.dec_inc.some
+  exact exists_fully_labeled_simplex_from_geom T y b h_bounds.room_le_two h_bounds.door_le_two h_bounds.door_pos h_bounds.one_door h_bounds.target
