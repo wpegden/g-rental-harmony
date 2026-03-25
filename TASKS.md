@@ -2,14 +2,14 @@
 
 <!-- SUPERVISOR_TASKS:START -->
 ## Supervisor Tasks
-- [x] Use `repo/paper/arxiv-1702.07325.tex`, `PAPERNOTES.md`, and the current repo state to build `PLAN.md`.
-- [x] Produce a comprehensive roadmap for definitions, theorem statements, and proof dependencies.
-- [x] Identify what can come from mathlib versus what must be formalized here.
-- [x] Use `NEED_INPUT` for external-result or design-choice questions that need a human decision.
+- [x] Create `PaperDefinitions.lean` with the definitions needed to state the paper results.
+- [x] Create `PaperTheorems.lean` with theorem statements as close to the paper as Lean allows.
+- [x] Keep the files easy for a human to compare against the paper.
+- [x] Make both files syntactically valid Lean.
 <!-- SUPERVISOR_TASKS:END -->
 
 ## Worker Tasks
-- [ ] Add the next concrete task here.
+- [x] Create `PaperDefinitions.lean` and `PaperTheorems.lean` following the combinatorial route.
 
 ## Completed
-- [ ] Move completed items here or check them off in place.
+- [x] Move completed items here or check them off in place.

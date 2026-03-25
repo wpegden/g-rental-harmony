@@ -1,1 +1,3 @@
 import GRentalHarmony.Basic
+import GRentalHarmony.PaperDefinitions
+import GRentalHarmony.PaperTheorems
