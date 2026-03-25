@@ -28,8 +28,36 @@ theorem rental_harmony_main (T : Triangulation n) (P : Fin (n - 1) → Preferenc
         ∃ (assignment : Fin (n - 1) → Fin n),
           Function.Injective assignment ∧
           (∀ j, assignment j ≠ secret_room) ∧
-          ∀ j, ∃ v ∈ τ, P j v = assignment j :=
-  sorry
+          ∀ j, ∃ v ∈ τ, P j v = assignment j := by
+  have h_hall := rental_harmony_hall T P hP
+  rcases h_hall with ⟨τ, hτ_faces, hτ_card, h_hall_cond⟩
+  refine ⟨τ, hτ_faces, hτ_card, fun secret_room => ?_⟩
+  let t : Fin (n - 1) → Finset (Fin n) := fun j => (τ.image (fun v => P j v)) \ {secret_room}
+  have h_hall' : ∀ (s : Finset (Fin (n - 1))), s.card ≤ (s.biUnion t).card := by
+    intro s
+    have h1 := h_hall_cond s
+    have h2 : s.biUnion t = (s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room} := by
+      ext x
+      simp only [t, mem_biUnion, mem_sdiff, mem_singleton]
+      tauto
+    rw [h2]
+    have h3 : ((s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room}).card ≥
+        (s.biUnion (fun j => τ.image (fun v => P j v))).card - 1 := by
+      rw [sdiff_singleton_eq_erase]
+      exact Finset.pred_card_le_card_erase
+    omega
+  have ⟨f, hf_inj, hf_mem⟩ := (Finset.all_card_le_biUnion_card_iff_exists_injective t).mp h_hall'
+  refine ⟨f, hf_inj, ?_, ?_⟩
+  · intro j
+    have : f j ∈ t j := hf_mem j
+    simp only [t, mem_sdiff, mem_singleton] at this
+    exact this.2
+  · intro j
+    have : f j ∈ t j := hf_mem j
+    simp only [t, mem_sdiff, mem_singleton] at this
+    have h_img := this.1
+    simp only [mem_image] at h_img
+    exact h_img
 
 /-- Theorem 2: Given m Sperner labelings of a triangulation of Δ_n, and a point y in m * Δ_n
 not in the convex hull of any n lattice points in m * Δ_n, there is a maximal simplex whose

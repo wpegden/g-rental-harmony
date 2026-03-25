@@ -2,14 +2,19 @@
 
 <!-- SUPERVISOR_TASKS:START -->
 ## Supervisor Tasks
-- [ ] Create `PaperDefinitions.lean` with the definitions needed to state the paper results.
-- [ ] Create `PaperTheorems.lean` with theorem statements as close to the paper as Lean allows.
-- [ ] Keep the files easy for a human to compare against the paper.
-- [ ] Make both files syntactically valid Lean.
+- [ ] Prove the target statements presented in `PaperTheorems.lean`.
+- [ ] Keep reusable proof infrastructure in separate support files when that yields a cleaner project structure.
+- [ ] Maintain `TASKS.md` and `PLAN.md` as the proof frontier moves.
+- [ ] Keep sorrys within the configured policy.
+- [ ] Do not introduce unapproved axioms.
 <!-- SUPERVISOR_TASKS:END -->
 
 ## Worker Tasks
-- [x] Create `PaperDefinitions.lean` and `PaperTheorems.lean` following the combinatorial route at the repo root.
+- [x] Prove the Hall-condition-to-assignment step (`rental_harmony_main` from `rental_harmony_hall`)
+- [ ] Prove `rental_harmony_hall` (the Hall condition component)
+- [ ] Prove `sperner_point_convex_hull`
+- [ ] Prove `meunier_conjecture`
 
 ## Completed
+- [x] Create `PaperDefinitions.lean` and `PaperTheorems.lean` following the combinatorial route at the repo root.
 - [x] Move completed items here or check them off in place.
