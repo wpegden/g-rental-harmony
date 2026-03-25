@@ -16,4 +16,4 @@ rev = "v4.28.0"
 
 [[lean_lib]]
 name = "GRentalHarmony"
-roots = ["GRentalHarmony", "PaperDefinitions", "PaperTheorems", "HelperLemmas", "TrapDoor"]
+roots = ["GRentalHarmony", "PaperDefinitions", "PaperTheorems", "HelperLemmas", "TrapDoor", "ProofGeometry"]

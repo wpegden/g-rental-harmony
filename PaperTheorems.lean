@@ -1,4 +1,5 @@
 import PaperDefinitions
+import ProofGeometry
 import HelperLemmas
 import Mathlib.Combinatorics.Hall.Basic
 
@@ -14,6 +15,7 @@ Given a triangulation and a vector assignment for each vertex that satisfies the
 appropriate boundary condition (anti-Sperner), the target barycenter point is contained
 in the convex hull of the assigned vectors of some top-dimensional simplex. -/
 lemma generalized_sperner_anti
+    (hn : 0 < n)
     (T : Triangulation n)
     (y : (Fin n → ℝ) → Fin n → ℝ)
     (hy_pos : ∀ v ∈ T.complex.vertices, ∀ i, 0 ≤ y v i)
@@ -21,7 +23,20 @@ lemma generalized_sperner_anti
     (hy_boundary : ∀ v ∈ T.complex.vertices, (∃ i : Fin n, v i = 0) → ∀ i : Fin n, v i > 0 → y v i = 0) :
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
       (fun _ : Fin n => ((n - 1 : ℝ) / (n : ℝ))) ∈ convexHull ℝ (τ.image (fun v => y v)) := by
-  sorry
+  -- We assume that the generic path-following bounds hold.
+  -- In a full formalization of piecewise linear topology, these would be proven
+  -- via lexicographic perturbation or generic intersection arguments.
+  let b : ℕ → Fin n → ℝ := fun _ _ => ((n - 1 : ℝ) / (n : ℝ))
+  have h_fintype_room : Fintype (GeomRoom T y b) := sorry
+  have h_fintype_door : Fintype (GeomDoor T y b) := sorry
+  have h_dec_inc : DecidableRel (geom_incidence T y b) := sorry
+  have h_room_le_two : ∀ r : GeomRoom T y b, ((@univ (GeomDoor T y b) h_fintype_door).filter (fun d => geom_incidence T y b r d)).card ≤ 2 := sorry
+  have h_door_le_two : ∀ d : GeomDoor T y b, ((@univ (GeomRoom T y b) h_fintype_room).filter (fun r => geom_incidence T y b r d)).card ≤ 2 := sorry
+  have h_door_pos : ∀ d : GeomDoor T y b, ((@univ (GeomRoom T y b) h_fintype_room).filter (fun r => geom_incidence T y b r d)).card > 0 := sorry
+  have h_one_door : ((@univ (GeomDoor T y b) h_fintype_door).filter (fun d => ((@univ (GeomRoom T y b) h_fintype_room).filter (fun r => geom_incidence T y b r d)).card = 1)).card = 1 := sorry
+  have h_target : ∀ r : GeomRoom T y b, ((@univ (GeomDoor T y b) h_fintype_door).filter (fun d => geom_incidence T y b r d)).card = 1 →
+      b n ∈ convexHull ℝ (r.val.image y : Set (Fin n → ℝ)) := sorry
+  exact exists_fully_labeled_simplex_from_geom T y b h_room_le_two h_door_le_two h_door_pos h_one_door h_target
 
 /-- Theorem 1 (Intermediate): Given n-1 valid preferences, there exists a maximal simplex
 (n vertices) such that any k roommates collectively prefer at least k+1 distinct rooms
@@ -79,7 +94,7 @@ theorem rental_harmony_hall (hn : 0 < n) (T : Triangulation n) (P : Fin (n - 1) 
       rw [h_eq_symm] at h_pref
       linarith
     rw [Pi.single_apply, if_neg h_neq]
-  have h_sperner := generalized_sperner_anti T y hy_pos hy_sum hy_boundary
+  have h_sperner := generalized_sperner_anti hn T y hy_pos hy_sum hy_boundary
   rcases h_sperner with ⟨τ, hτ_faces, hτ_card, h_conv⟩
   refine ⟨τ, hτ_faces, hτ_card, ?_⟩
   -- We need to use `hall_condition_from_convex_hull`
@@ -150,8 +165,27 @@ theorem sperner_point_convex_hull {m : ℕ} (T : Triangulation (n + 1))
       y ∉ convexHull ℝ (S : Set (Fin (n + 1) → ℝ))) :
     ∃ τ ∈ T.complex.faces, τ.card = n + 1 ∧
       y ∈ convexHull ℝ (τ.image (fun v => ∑ j, (Pi.single (L j v) 1 : Fin (n + 1) → ℝ)) :
-        Set (Fin (n + 1) → ℝ)) :=
-  sorry
+        Set (Fin (n + 1) → ℝ)) := by
+  let y_vec : (Fin (n + 1) → ℝ) → Fin (n + 1) → ℝ := fun v => ∑ j, (Pi.single (L j v) 1 : Fin (n + 1) → ℝ)
+  let b : ℕ → Fin (n + 1) → ℝ := fun k i => if k = n + 1 then y i else 0
+  have h_fintype_room : Fintype (GeomRoom T y_vec b) := sorry
+  have h_fintype_door : Fintype (GeomDoor T y_vec b) := sorry
+  have h_dec_inc : DecidableRel (geom_incidence T y_vec b) := sorry
+  have h_room_le_two : ∀ r : GeomRoom T y_vec b, ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => geom_incidence T y_vec b r d)).card ≤ 2 := sorry
+  have h_door_le_two : ∀ d : GeomDoor T y_vec b, ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card ≤ 2 := sorry
+  have h_door_pos : ∀ d : GeomDoor T y_vec b, ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card > 0 := sorry
+  have h_one_door : ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card = 1)).card = 1 := sorry
+  have h_target : ∀ r : GeomRoom T y_vec b, ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => geom_incidence T y_vec b r d)).card = 1 →
+      b (n + 1) ∈ convexHull ℝ (r.val.image y_vec : Set (Fin (n + 1) → ℝ)) := sorry
+  have hn_pos : 0 < n + 1 := Nat.succ_pos n
+  have h_geom := exists_fully_labeled_simplex_from_geom T y_vec b h_room_le_two h_door_le_two h_door_pos h_one_door h_target
+  rcases h_geom with ⟨τ, hτ_faces, hτ_card, h_conv⟩
+  refine ⟨τ, hτ_faces, hτ_card, ?_⟩
+  have h_eq : b (n + 1) = y := by
+    ext i
+    simp [b]
+  rw [h_eq] at h_conv
+  exact h_conv
 
 /-- Theorem 3: Meunier Conjecture / Babson's Theorem
 Given m Sperner labelings of a triangulation of Δ_n and positive integers k_j summing to n + m,
@@ -163,5 +197,22 @@ theorem meunier_conjecture {m : ℕ} (T : Triangulation (n + 1))
     (hk_pos : ∀ j, 0 < k j)
     (hk_sum : ∑ j, k j = n + m) :
     ∃ τ ∈ T.complex.faces, τ.card = n + 1 ∧
-      ∀ j, (τ.image (fun v => L j v)).card ≥ k j :=
+      ∀ j, (τ.image (fun v => L j v)).card ≥ k j := by
+  let α : Fin m → ℝ := fun j => (1 / ((n : ℝ) + 1)) * ((k j : ℝ) + 1 / (m : ℝ) - 1)
+  let y_vec : (Fin (n + 1) → ℝ) → Fin (n + 1) → ℝ := fun v => ∑ j, α j • (Pi.single (L j v) 1 : Fin (n + 1) → ℝ)
+  let b : ℕ → Fin (n + 1) → ℝ := fun k i => if k = n + 1 then 1 / ((n : ℝ) + 1) else 0
+  have h_fintype_room : Fintype (GeomRoom T y_vec b) := sorry
+  have h_fintype_door : Fintype (GeomDoor T y_vec b) := sorry
+  have h_dec_inc : DecidableRel (geom_incidence T y_vec b) := sorry
+  have h_room_le_two : ∀ r : GeomRoom T y_vec b, ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => geom_incidence T y_vec b r d)).card ≤ 2 := sorry
+  have h_door_le_two : ∀ d : GeomDoor T y_vec b, ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card ≤ 2 := sorry
+  have h_door_pos : ∀ d : GeomDoor T y_vec b, ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card > 0 := sorry
+  have h_one_door : ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => ((@univ (GeomRoom T y_vec b) h_fintype_room).filter (fun r => geom_incidence T y_vec b r d)).card = 1)).card = 1 := sorry
+  have h_target : ∀ r : GeomRoom T y_vec b, ((@univ (GeomDoor T y_vec b) h_fintype_door).filter (fun d => geom_incidence T y_vec b r d)).card = 1 →
+      b (n + 1) ∈ convexHull ℝ (r.val.image y_vec : Set (Fin (n + 1) → ℝ)) := sorry
+  have hn_pos : 0 < n + 1 := Nat.succ_pos n
+  have h_geom := exists_fully_labeled_simplex_from_geom T y_vec b h_room_le_two h_door_le_two h_door_pos h_one_door h_target
+  rcases h_geom with ⟨τ, hτ_faces, hτ_card, h_conv⟩
+  refine ⟨τ, hτ_faces, hτ_card, ?_⟩
+  -- The remainder is the algebraic/combinatorial deduction from h_conv
   sorry
