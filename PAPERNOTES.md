@@ -1,0 +1,14 @@
+# Paper Notes
+
+## Corrections And Clarifications
+- **Condition 3 (1-cent error margin):** The paper intentionally works with a finite triangulation instead of continuous preferences. The formalization should focus on the combinatorial result: given any finite triangulation of $\Delta_{n-1}$ and preferences assigned at the vertices, there exists a simplex $\tau$ satisfying the fair division condition.
+- **Sperner Boundary Condition (Section 4):** A key, elegant argument is how the free-room preferences are transformed into a proper Sperner labeling. At any vertex $v$, the set of free rooms is $F = V \setminus \text{carrier}(v)$. The paper assigns the roommates to pick a room from $F$ using a cyclic permutation $f$, such that $f^{-1}(\text{choice}) \in \text{carrier}(v)$. This turns the free-room condition into a valid Sperner labeling.
+- **Piecewise Linear Map $\lambda$:** The paper defines $\lambda_j$ as the PL extension of the preferences and $\lambda$ as their average. The existence of a fair division reduces to finding $x \in \tau$ such that $\lambda(x) = \text{barycenter}$.
+- **Hall's Marriage Theorem:** The condition $\lambda(x) = \text{barycenter}$ is algebraically equivalent to $\sum_{j=1}^{n-1} \sum_{k=0}^{n-1} \mu_k e_{c(j,k)} = \frac{n-1}{n} \mathbf{1}$. The paper shows this implies any $k$ roommates prefer at least $k+1$ distinct rooms across the vertices of $\tau$, which exactly satisfies Hall's condition for a perfect matching.
+- **Section 5 (Algorithm):** The paper provides an elementary trap-door algorithm (path-following in a graph of simplices and edges) to prove the surjectivity of $\lambda$. This gives an entirely combinatorial proof of the generalized Sperner lemma used in the paper, bypassing topological degree theory.
+- **Theorems 2 and 3:** These are multi-labeling generalizations of Sperner's lemma. Their proofs follow from the same existence of a simplex mapping to a specific point (barycenter or otherwise) under a convex combination of PL maps.
+
+## Open Questions
+- **Topological vs Combinatorial Proof:** Should we formalize the generalized Sperner lemma by building the continuous PL map and using Mathlib's Brouwer Fixed Point Theorem / Topological Degree? Or should we formalize the purely combinatorial path-following algorithm in Section 5? The combinatorial path-following avoids continuous topology but requires formalizing general position/lexicographic perturbations to handle degenerate intersections.
+- **Level of Abstraction for Triangulations:** Mathlib has some support for simplicial complexes, but we need to carefully choose the definition of a triangulation of the standard simplex to make the Sperner boundary conditions and PL map definitions straightforward.
+- Do we need to prove Hall's marriage theorem from scratch, or is it already accessible in Mathlib? (Mathlib does have Hall's Marriage Theorem for finite sets, e.g., `Fintype.all_card_le_biUnion_card_iff_exists_injective`).
