@@ -18,14 +18,17 @@ theorem rental_harmony_hall (T : Triangulation n) (P : Fin (n - 1) → Preferenc
 
 /-- Theorem 1 (Main): For an n-bedroom apartment it is sufficient to know the subjective preferences
 of n-1 roommates to find an envy-free division of rent. This means there is a simplex τ representing
-a rent division, and an assignment of rooms to the n-1 roommates such that everyone gets a room
-they prefer at one of the vertices of τ. -/
+a rent division such that, no matter which room the secretive roommate chooses, there is a valid
+assignment of the remaining rooms to the n-1 roommates where everyone gets a room they prefer at
+one of the vertices of τ. -/
 theorem rental_harmony_main (T : Triangulation n) (P : Fin (n - 1) → Preference n)
     (hP : ∀ j, ValidPreference T (P j)) :
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
-      ∃ (assignment : Fin (n - 1) → Fin n),
-        Function.Injective assignment ∧
-        ∀ j, ∃ v ∈ τ, P j v = assignment j :=
+      ∀ (secret_room : Fin n),
+        ∃ (assignment : Fin (n - 1) → Fin n),
+          Function.Injective assignment ∧
+          (∀ j, assignment j ≠ secret_room) ∧
+          ∀ j, ∃ v ∈ τ, P j v = assignment j :=
   sorry
 
 /-- Theorem 2: Given m Sperner labelings of a triangulation of Δ_n, and a point y in m * Δ_n
