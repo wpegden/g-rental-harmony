@@ -12,7 +12,7 @@ across its vertices. -/
 theorem rental_harmony_hall (T : Triangulation n) (P : Fin (n - 1) → Preference n)
     (hP : ∀ j, ValidPreference T (P j)) :
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
-      ∀ (K : Finset (Fin (n - 1))),
+      ∀ (K : Finset (Fin (n - 1))), K.Nonempty →
         (K.biUnion (fun j => τ.image (fun v => P j v))).card ≥ K.card + 1 :=
   sorry
 
@@ -35,17 +35,21 @@ theorem rental_harmony_main (T : Triangulation n) (P : Fin (n - 1) → Preferenc
   let t : Fin (n - 1) → Finset (Fin n) := fun j => (τ.image (fun v => P j v)) \ {secret_room}
   have h_hall' : ∀ (s : Finset (Fin (n - 1))), s.card ≤ (s.biUnion t).card := by
     intro s
-    have h1 := h_hall_cond s
-    have h2 : s.biUnion t = (s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room} := by
-      ext x
-      simp only [t, mem_biUnion, mem_sdiff, mem_singleton]
-      tauto
-    rw [h2]
-    have h3 : ((s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room}).card ≥
-        (s.biUnion (fun j => τ.image (fun v => P j v))).card - 1 := by
-      rw [sdiff_singleton_eq_erase]
-      exact Finset.pred_card_le_card_erase
-    omega
+    by_cases h_empty : s.Nonempty
+    · have h1 := h_hall_cond s h_empty
+      have h2 : s.biUnion t = (s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room} := by
+        ext x
+        simp only [t, mem_biUnion, mem_sdiff, mem_singleton]
+        tauto
+      rw [h2]
+      have h3 : ((s.biUnion (fun j => τ.image (fun v => P j v))) \ {secret_room}).card ≥
+          (s.biUnion (fun j => τ.image (fun v => P j v))).card - 1 := by
+        rw [sdiff_singleton_eq_erase]
+        exact Finset.pred_card_le_card_erase
+      omega
+    · simp only [not_nonempty_iff_eq_empty] at h_empty
+      rw [h_empty]
+      simp only [card_empty, biUnion_empty, zero_le]
   have ⟨f, hf_inj, hf_mem⟩ := (Finset.all_card_le_biUnion_card_iff_exists_injective t).mp h_hall'
   refine ⟨f, hf_inj, ?_, ?_⟩
   · intro j
