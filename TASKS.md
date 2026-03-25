@@ -13,7 +13,8 @@
 - [x] Prove the Hall-condition-to-assignment step (`rental_harmony_main` from `rental_harmony_hall`)
 - [x] Prove helper lemma about distinct preferred-room counts on a simplex from a convex combination (`hall_condition_from_convex_hull` in `HelperLemmas.lean`)
 - [x] Prove `rental_harmony_hall` using `generalized_sperner_anti`
-- [ ] Prove `generalized_sperner_anti` (Core combinatorial vector-labeling Sperner's Lemma)
+- [x] Formalize the combinatorial core of the trap-door algorithm (parity argument on abstract graph) in `TrapDoor.lean`
+- [ ] Connect `TrapDoor.lean` to the geometric setting of triangulated simplices to prove `generalized_sperner_anti`
 - [ ] Prove `sperner_point_convex_hull`
 - [ ] Prove `meunier_conjecture`
 
