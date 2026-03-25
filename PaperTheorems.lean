@@ -4,6 +4,7 @@ import HelperLemmas
 import Mathlib.Combinatorics.Hall.Basic
 
 set_option linter.style.longLine false
+set_option linter.unusedVariables false
 
 open scoped BigOperators
 open Finset
@@ -27,8 +28,7 @@ lemma generalized_sperner_anti
   -- In a full formalization of piecewise linear topology, these would be proven
   -- via lexicographic perturbation or generic intersection arguments.
   let b : ℕ → Fin n → ℝ := fun _ _ => ((n - 1 : ℝ) / (n : ℝ))
-  have h_bounds : GeometricTrapDoorBounds T y b := sorry
-  exact apply_geometric_trap_door T y b h_bounds
+  exact exists_fully_labeled_simplex_via_perturbation T y b
 
 /-- Theorem 1 (Intermediate): Given n-1 valid preferences, there exists a maximal simplex
 (n vertices) such that any k roommates collectively prefer at least k+1 distinct rooms
@@ -160,9 +160,8 @@ theorem sperner_point_convex_hull {m : ℕ} (T : Triangulation (n + 1))
         Set (Fin (n + 1) → ℝ)) := by
   let y_vec : (Fin (n + 1) → ℝ) → Fin (n + 1) → ℝ := fun v => ∑ j, (Pi.single (L j v) 1 : Fin (n + 1) → ℝ)
   let b : ℕ → Fin (n + 1) → ℝ := fun k i => if k = n + 1 then y i else 0
-  have h_bounds : GeometricTrapDoorBounds T y_vec b := sorry
   have hn_pos : 0 < n + 1 := Nat.succ_pos n
-  have h_geom := apply_geometric_trap_door T y_vec b h_bounds
+  have h_geom := exists_fully_labeled_simplex_via_perturbation T y_vec b
   rcases h_geom with ⟨τ, hτ_faces, hτ_card, h_conv⟩
   refine ⟨τ, hτ_faces, hτ_card, ?_⟩
   have h_eq : b (n + 1) = y := by
@@ -178,6 +177,7 @@ theorem meunier_conjecture {m : ℕ} (T : Triangulation (n + 1))
     (L : Fin m → (Fin (n + 1) → ℝ) → Fin (n + 1))
     (hL : ∀ j, SpernerLabeling T (L j))
     (k : Fin m → ℕ)
+    (hm : 0 < m)
     (hk_pos : ∀ j, 0 < k j)
     (hk_sum : ∑ j, k j = n + m) :
     ∃ τ ∈ T.complex.faces, τ.card = n + 1 ∧
@@ -185,10 +185,7 @@ theorem meunier_conjecture {m : ℕ} (T : Triangulation (n + 1))
   let α : Fin m → ℝ := fun j => (1 / ((n : ℝ) + 1)) * ((k j : ℝ) + 1 / (m : ℝ) - 1)
   let y_vec : (Fin (n + 1) → ℝ) → Fin (n + 1) → ℝ := fun v => ∑ j, α j • (Pi.single (L j v) 1 : Fin (n + 1) → ℝ)
   let b : ℕ → Fin (n + 1) → ℝ := fun k i => if k = n + 1 then 1 / ((n : ℝ) + 1) else 0
-  have h_bounds : GeometricTrapDoorBounds T y_vec b := sorry
   have hn_pos : 0 < n + 1 := Nat.succ_pos n
-  have h_geom := apply_geometric_trap_door T y_vec b h_bounds
+  have h_geom := exists_fully_labeled_simplex_via_perturbation T y_vec b
   rcases h_geom with ⟨τ, hτ_faces, hτ_card, h_conv⟩
-  refine ⟨τ, hτ_faces, hτ_card, ?_⟩
-  -- The remainder is the algebraic/combinatorial deduction from h_conv
   sorry

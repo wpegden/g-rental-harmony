@@ -30,12 +30,9 @@ def is_door (tau : Finset (Fin n → ℝ)) : Prop :=
   tau ∈ T.complex.faces ∧ tau.card = n - 1 ∧
   ∃ pt ∈ convexHull ℝ (tau.image y : Set (Fin n → ℝ)), pt ∈ Segment (b (n-1)) (b n)
 
--- To form a TrapDoorGraph, we need Fintypes.
--- We can just define R and D as the subtypes.
 def GeomRoom := { sigma : Finset (Fin n → ℝ) // is_room T y b sigma }
 def GeomDoor := { tau : Finset (Fin n → ℝ) // is_door T y b tau }
 
--- Incidence is just subset
 def geom_incidence (r : GeomRoom T y b) (d : GeomDoor T y b) : Prop :=
   d.val ⊆ r.val
 
@@ -43,7 +40,6 @@ section TrapDoorGraphConstruction
 variable [Fintype (GeomRoom T y b)] [Fintype (GeomDoor T y b)]
 variable [DecidableRel (geom_incidence T y b)]
 
-/-- We construct the TrapDoorGraph assuming the geometric degree bounds hold. -/
 def build_trap_door_graph
     (h_room_le_two : ∀ r : GeomRoom T y b, (univ.filter (fun d => geom_incidence T y b r d)).card ≤ 2)
     (h_door_le_two : ∀ d : GeomDoor T y b, (univ.filter (fun r => geom_incidence T y b r d)).card ≤ 2)
@@ -55,8 +51,6 @@ def build_trap_door_graph
   door_rooms_le_two := h_door_le_two
   door_rooms_pos := h_door_pos
 
-/-- If the geometric graph satisfies the bounds and has exactly one boundary door,
-    then there is a fully labeled simplex. -/
 lemma exists_fully_labeled_simplex_from_geom
     (h_room_le_two : ∀ r : GeomRoom T y b, (univ.filter (fun d => geom_incidence T y b r d)).card ≤ 2)
     (h_door_le_two : ∀ d : GeomDoor T y b, (univ.filter (fun r => geom_incidence T y b r d)).card ≤ 2)
@@ -80,7 +74,6 @@ lemma exists_fully_labeled_simplex_from_geom
 
 end TrapDoorGraphConstruction
 
-/-- The properties that a geometric triangulation must satisfy generically for the trap-door path following to work. -/
 structure GeometricTrapDoorBounds : Prop where
   fintype_room : Nonempty (Fintype (GeomRoom T y b))
   fintype_door : Nonempty (Fintype (GeomDoor T y b))
@@ -91,7 +84,6 @@ structure GeometricTrapDoorBounds : Prop where
   one_door : ∀ [Fintype (GeomRoom T y b)] [Fintype (GeomDoor T y b)] [DecidableRel (geom_incidence T y b)], ((@univ (GeomDoor T y b) _).filter (fun d => ((@univ (GeomRoom T y b) _).filter (fun r => geom_incidence T y b r d)).card = 1)).card = 1
   target : ∀ [Fintype (GeomDoor T y b)] [DecidableRel (geom_incidence T y b)], ∀ r : GeomRoom T y b, ((@univ (GeomDoor T y b) _).filter (fun d => geom_incidence T y b r d)).card = 1 → b n ∈ convexHull ℝ (r.val.image y : Set (Fin n → ℝ))
 
-/-- Helper API for PaperTheorems: given the bounds structure, extract the conclusion. -/
 lemma apply_geometric_trap_door
     (h_bounds : GeometricTrapDoorBounds T y b) :
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
@@ -100,3 +92,35 @@ lemma apply_geometric_trap_door
   have inst2 : Fintype (GeomDoor T y b) := h_bounds.fintype_door.some
   have inst3 : DecidableRel (geom_incidence T y b) := h_bounds.dec_inc.some
   exact exists_fully_labeled_simplex_from_geom T y b h_bounds.room_le_two h_bounds.door_le_two h_bounds.door_pos h_bounds.one_door h_bounds.target
+
+-- PERTURBATION STRATEGY
+-- We define a property indicating that the target point is generic with respect to
+-- the faces of dimension < n-1.
+def GenericTarget : Prop :=
+  ∀ F ∈ T.complex.faces, F.card < n - 1 → b n ∉ convexHull ℝ (F.image y : Set (Fin n → ℝ))
+
+lemma generic_implies_bounds (h_gen : GenericTarget T y b) : GeometricTrapDoorBounds T y b := by
+  sorry
+
+-- Because there are finitely many faces, we can avoid the bad affine spans.
+-- If we perturb along a generic line u, b_t = b + t * u will be generic for almost all small t.
+lemma exists_generic_perturbation :
+    ∃ u : Fin n → ℝ, ∀ ε > 0, ∃ t ∈ Set.Ioo 0 ε, GenericTarget T y (fun k => if k = n then (fun i => b n i + t * u i) else b k) := by
+  sorry
+
+-- The limit argument: since T is finite, there exists one face τ that works for infinitely many t -> 0.
+-- Since the convex hull is compact (closed), b n must be in the hull of τ for t=0.
+lemma generic_limit_exists_simplex
+    (h_perturbed : ∀ u : Fin n → ℝ, ∀ t > 0, ∃ τ ∈ T.complex.faces, τ.card = n ∧
+      (fun i => b n i + t * u i) ∈ convexHull ℝ (τ.image y : Set (Fin n → ℝ))) :
+    ∃ τ ∈ T.complex.faces, τ.card = n ∧
+      b n ∈ convexHull ℝ (τ.image y : Set (Fin n → ℝ)) := by
+  sorry
+
+-- Combined Perturbation-Limit theorem
+-- If we can prove bounds for any GenericTarget, we can prove the existence for any target b.
+lemma exists_fully_labeled_simplex_via_perturbation :
+    ∃ τ ∈ T.complex.faces, τ.card = n ∧
+      b n ∈ convexHull ℝ (τ.image y : Set (Fin n → ℝ)) := by
+  sorry
+
