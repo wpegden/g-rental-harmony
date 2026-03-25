@@ -15,12 +15,12 @@ appropriate boundary condition (anti-Sperner), the target barycenter point is co
 in the convex hull of the assigned vectors of some top-dimensional simplex. -/
 lemma generalized_sperner_anti
     (T : Triangulation n)
-    (y : T.complex.vertices → Fin n → ℝ)
-    (hy_pos : ∀ v i, 0 ≤ y v i)
-    (hy_sum : ∀ v, ∑ i, y v i = n - 1)
-    (hy_boundary : ∀ v : T.complex.vertices, (∃ i : Fin n, (v : Fin n → ℝ) i = 0) → ∀ i : Fin n, (v : Fin n → ℝ) i > 0 → y v i = 0) :
+    (y : (Fin n → ℝ) → Fin n → ℝ)
+    (hy_pos : ∀ v ∈ T.complex.vertices, ∀ i, 0 ≤ y v i)
+    (hy_sum : ∀ v ∈ T.complex.vertices, ∑ i, y v i = n - 1)
+    (hy_boundary : ∀ v ∈ T.complex.vertices, (∃ i : Fin n, v i = 0) → ∀ i : Fin n, v i > 0 → y v i = 0) :
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
-      (fun _ : Fin n => ((n - 1 : ℝ) / (n : ℝ))) ∈ convexHull ℝ (τ.image (fun v => y ⟨v, sorry⟩)) := by
+      (fun _ : Fin n => ((n - 1 : ℝ) / (n : ℝ))) ∈ convexHull ℝ (τ.image (fun v => y v)) := by
   sorry
 
 /-- Theorem 1 (Intermediate): Given n-1 valid preferences, there exists a maximal simplex
@@ -31,9 +31,9 @@ theorem rental_harmony_hall (hn : 0 < n) (T : Triangulation n) (P : Fin (n - 1) 
     ∃ τ ∈ T.complex.faces, τ.card = n ∧
       ∀ (K : Finset (Fin (n - 1))), K.Nonempty →
         (K.biUnion (fun j => τ.image (fun v => P j v))).card ≥ K.card + 1 := by
-  let y : T.complex.vertices → Fin n → ℝ := fun v => ∑ j : Fin (n - 1), (Pi.single (P j v) 1 : Fin n → ℝ)
-  have hy_pos : ∀ v i, 0 ≤ y v i := by
-    intro v i
+  let y : (Fin n → ℝ) → Fin n → ℝ := fun v => ∑ j : Fin (n - 1), (Pi.single (P j v) 1 : Fin n → ℝ)
+  have hy_pos : ∀ v ∈ T.complex.vertices, ∀ i, 0 ≤ y v i := by
+    intro v hv i
     simp only [y]
     rw [Finset.sum_apply]
     apply sum_nonneg
@@ -42,10 +42,10 @@ theorem rental_harmony_hall (hn : 0 < n) (T : Triangulation n) (P : Fin (n - 1) 
     split_ifs
     · exact zero_le_one
     · rfl
-  have hy_sum : ∀ v, ∑ i, y v i = n - 1 := by
-    intro v
+  have hy_sum : ∀ v ∈ T.complex.vertices, ∑ i, y v i = n - 1 := by
+    intro v hv
     simp only [y]
-    have h_eval : ∑ i : Fin n, (∑ j : Fin (n - 1), (Pi.single (P j (v : Fin n → ℝ)) 1 : Fin n → ℝ)) i = ∑ i : Fin n, ∑ j : Fin (n - 1), (Pi.single (P j v) 1 : Fin n → ℝ) i := by
+    have h_eval : ∑ i : Fin n, (∑ j : Fin (n - 1), (Pi.single (P j v) 1 : Fin n → ℝ)) i = ∑ i : Fin n, ∑ j : Fin (n - 1), (Pi.single (P j v) 1 : Fin n → ℝ) i := by
       apply sum_congr rfl
       intro i hi
       rw [Finset.sum_apply]
@@ -58,7 +58,7 @@ theorem rental_harmony_hall (hn : 0 < n) (T : Triangulation n) (P : Fin (n - 1) 
         rw [Pi.single_apply, if_neg hneq]
       · intro hnot
         simp at hnot
-    have h2 : ∑ j : Fin (n - 1), ∑ i : Fin n, (Pi.single (P j (v : Fin n → ℝ)) 1 : Fin n → ℝ) i = ∑ j : Fin (n - 1), (1 : ℝ) := by
+    have h2 : ∑ j : Fin (n - 1), ∑ i : Fin n, (Pi.single (P j v) 1 : Fin n → ℝ) i = ∑ j : Fin (n - 1), (1 : ℝ) := by
       apply sum_congr rfl
       intro j hj
       exact h1 j
@@ -66,13 +66,13 @@ theorem rental_harmony_hall (hn : 0 < n) (T : Triangulation n) (P : Fin (n - 1) 
     simp only [sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one]
     have h_ge : 0 < n := hn
     exact Nat.cast_pred h_ge
-  have hy_boundary : ∀ v : T.complex.vertices, (∃ i : Fin n, (v : Fin n → ℝ) i = 0) → ∀ i : Fin n, (v : Fin n → ℝ) i > 0 → y v i = 0 := by
-    intro v h_free i h_pos
+  have hy_boundary : ∀ v ∈ T.complex.vertices, (∃ i : Fin n, v i = 0) → ∀ i : Fin n, v i > 0 → y v i = 0 := by
+    intro v hv h_free i h_pos
     simp only [y]
     rw [Finset.sum_apply]
     apply sum_eq_zero
     intro j hj
-    have h_pref := hP j v v.property h_free
+    have h_pref := hP j v hv h_free
     have h_neq : i ≠ P j v := by
       intro h_eq
       have h_eq_symm := h_eq.symm

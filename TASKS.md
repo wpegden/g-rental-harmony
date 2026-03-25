@@ -12,7 +12,8 @@
 ## Worker Tasks
 - [x] Prove the Hall-condition-to-assignment step (`rental_harmony_main` from `rental_harmony_hall`)
 - [x] Prove helper lemma about distinct preferred-room counts on a simplex from a convex combination (`hall_condition_from_convex_hull` in `HelperLemmas.lean`)
-- [ ] Prove `rental_harmony_hall` (the Hall condition component)
+- [x] Prove `rental_harmony_hall` using `generalized_sperner_anti`
+- [ ] Prove `generalized_sperner_anti` (Core combinatorial vector-labeling Sperner's Lemma)
 - [ ] Prove `sperner_point_convex_hull`
 - [ ] Prove `meunier_conjecture`
 
